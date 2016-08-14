@@ -1,0 +1,15 @@
+name: livechat.cr
+version: 0.1.0
+
+dependencies:
+  Events:
+    github: kcreate/Events
+    branch: master
+  kemal:
+    github: sdogruyol/kemal
+    branch: master
+
+authors:
+  - Leonard Schuetz <leni.schuetz@me.com>
+
+license: MIT

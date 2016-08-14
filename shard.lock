@@ -1,0 +1,18 @@
+version: 1.0
+shards:
+  Events:
+    github: kcreate/Events
+    commit: 8410c13dd0a0068044c7d2515106bf6ee59f342d
+
+  kemal:
+    github: sdogruyol/kemal
+    commit: 849eda06c8686676e68f39569f1deb5ab193917c
+
+  kilt:
+    github: jeromegn/kilt
+    version: 0.3.3
+
+  radix:
+    github: luislavena/radix
+    version: 0.3.0
+
