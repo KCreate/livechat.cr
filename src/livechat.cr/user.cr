@@ -1,11 +1,11 @@
 module Livechat
   class User
 
-    alias RecStringHash = Hash(String, String | RecStringHash)
+    alias Permissions = Hash(String, Bool)
 
     property uid : String
     property name : String?
-    property permissions : RecStringHash
+    property permissions : Permissions
 
     # Set default permissions
     @permissions = {
@@ -16,7 +16,7 @@ module Livechat
     }
 
     # Takes a *uid* and an optional Hash to overwrite default permissions
-    def initialize(@uid, permissions : RecStringHash)
+    def initialize(@uid, permissions : Permissions = {} of String => Bool)
 
       # Overwrite each key with the value set in *permissions*
       permissions.each do |key, value|

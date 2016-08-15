@@ -8,9 +8,9 @@ module Livechat
 
     # Read only properties
     getter port : Int32
+    getter sockets : Array(HTTP::WebSocket)
     getter lastMessage : String?
     getter lastSocket : HTTP::WebSocket?
-    getter sockets : Array(HTTP::WebSocket)
 
     # Define a new server instance
     # Listens on the specified *port*
@@ -25,7 +25,7 @@ module Livechat
 
         # Invoke the onopen event
         @lastSocket = socket
-        invoke_event "open"
+        invoke_event LivechatEvents::SocketOpened
 
         # Bind to onmessage and onclose event handlers
         socket.on_message do |message|
@@ -33,14 +33,14 @@ module Livechat
           @lastSocket = socket
 
           # Invoke the onmessage event
-          invoke_event "message"
+          invoke_event LivechatEvents::SocketMessage
         end
         socket.on_close do |message|
           @lastMessage = message
           @lastSocket = socket
 
           # Invoke the onclose event
-          invoke_event "close"
+          invoke_event LivechatEvents::SocketClosed
 
           # Remove the socket from the @sockets array
           @sockets.delete socket
@@ -78,9 +78,9 @@ module Livechat
     def start
 
       # Register some events
-      register_event "open"
-      register_event "message"
-      register_event "close"
+      register_event LivechatEvents::SocketOpened
+      register_event LivechatEvents::SocketMessage
+      register_event LivechatEvents::SocketClosed
 
       # Start kemal
       Kemal.run
@@ -95,9 +95,9 @@ module Livechat
       @sockets.clear
 
       # Unregister all events
-      unregister_event "open"
-      unregister_event "message"
-      unregister_event "close"
+      unregister_event LivechatEvents::SocketOpened
+      unregister_event LivechatEvents::SocketMessage
+      unregister_event LivechatEvents::SocketClose
 
       # Shut down Kemal
       Kemal.config.server.not_nil!.close

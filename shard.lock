@@ -2,7 +2,7 @@ version: 1.0
 shards:
   Events:
     github: kcreate/Events
-    commit: 8410c13dd0a0068044c7d2515106bf6ee59f342d
+    commit: 682ba0b363f05f94b492f18d2e582ec659a6a709
 
   kemal:
     github: sdogruyol/kemal
