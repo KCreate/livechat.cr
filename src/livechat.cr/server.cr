@@ -1,7 +1,14 @@
+# External dependencies
 require "kemal"
 require "events"
 
+# Internal dependencies
+require "./socket_user.cr"
+require "./user.cr"
+require "./socket_response.cr"
+
 module Livechat
+
   # Spins up a new kemal instance and wraps around websocket events
   class Server
     include Events
@@ -101,6 +108,18 @@ module Livechat
 
       # Shut down Kemal
       Kemal.config.server.not_nil!.close
+    end
+
+    # Closes the connection to a socket,
+    # optionally passing a SocketResponse object
+    def close_connection(socket : HTTP::WebSocket)
+      socket.close
+    end
+
+    # Closes the connection to a user,
+    # optionally passing a SocketResponse object
+    def close_connection(user : User)
+      close_connection SocketUser.socket_for_user?(user).not_nil!
     end
   end
 end

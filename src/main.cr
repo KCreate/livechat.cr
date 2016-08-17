@@ -3,11 +3,11 @@ require "json"
 include Livechat
 include SecureRandom
 
-# Create a controller
-controller = Controller.new
-
 # Get a server instance
 server = Server.new 3000
+
+# Create a controller
+controller = Controller.new server
 
 # Once a connection opens, create a socket -> user pair
 server.on LivechatEvents::SocketOpened do
@@ -20,25 +20,26 @@ server.on LivechatEvents::SocketOpened do
 end
 server.on LivechatEvents::SocketMessage do
 
+  # Try to create the command
   begin
-    command = JSON.parse server.lastMessage.not_nil!
-  rescue
-    puts "that is not json!!"
-    puts "---"
-    puts server.lastMessage.not_nil!
-    puts "---"
+    command = create_command server.lastMessage.not_nil!
+  rescue ex
+    response = SocketResponse.new false, ResponseType::Error
+    response.errors << ex.message.not_nil! unless ex.message.is_a? Nil
 
-    next
+    server.lastSocket.not_nil!.send response.to_json
   end
 
-  # JSON.parse didn't throw so command is valid JSON
-  command = command.not_nil!
+  # If the command is correct
+  if !command.is_a? Nil
 
-  # Get the user for the current socket
-  user = SocketUser.user_for_socket?(server.lastSocket.not_nil!)
+    # Create the command and user objects
+    command = command.not_nil!
+    user = SocketUser.user_for_socket?(server.lastSocket.not_nil!)
 
-  # Run the command with the given user
-  controller.command command, user
+    # Run the command with the given user
+    controller.command command, user
+  end
 end
 
 server.on LivechatEvents::SocketClosed do

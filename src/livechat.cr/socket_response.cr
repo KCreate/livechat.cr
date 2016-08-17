@@ -14,27 +14,29 @@ module Livechat
     RoomNameChanged
     RoomCleared
     YouGotKicked
+    YouClosed
     Error
   end
 
-  # Defines the response the socket send back to the client
-  class SocketResponse
-
-    # Timestamp
-    getter timestamp : UInt64
-
-    # Properties every response needs to have
+  # A response sent back to the client over a HTTP::WebSocket
+  struct SocketResponse
+    property timestamp : Int64
     property ok : Bool
-    property errors : Array(String)?
+    property errors : Array(String)
     property type : ResponseType
-
-    # Optional properties
-    property contributions : Contribution?
-    property user : User?
-    property room : Room?
+    property data : JSON::Any?
 
     def initialize(@ok, @type)
-      @timestamp = Time.now.epoch as UInt64
+      @timestamp = Time.now.epoch
+      @errors = [] of String
     end
+
+    JSON.mapping({
+      timestamp: { type: Int64 },
+      ok: { type: Bool },
+      errors: { type: Array(String) },
+      type: { type: ResponseType },
+      data: { type: JSON::Any, nilable: true }
+    })
   end
 end

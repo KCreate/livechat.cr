@@ -35,13 +35,19 @@ module Livechat
 
     # Returns the socket for a given *user*
     def self.socket_for_user?(user : User)
-      socket : HTTP::WebSocket
+      socket = Nil
       @@pairs.each do |key, value|
         if value == user
           socket = key
+          break
         end
       end
-      socket
+
+      if socket.is_a? Nil
+        socket as Nil
+      else
+        socket as HTTP::WebSocket
+      end
     end
 
     # Returns all users as Array(User)

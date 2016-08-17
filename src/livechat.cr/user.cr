@@ -23,5 +23,15 @@ module Livechat
         @permissions[key] = value
       end
     end
+
+    # Returns the name of the user
+    # if the user has no name, the uid will be returned
+    def name
+      if @name
+        @name
+      else
+        @uid
+      end
+    end
   end
 end
