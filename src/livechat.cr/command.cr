@@ -26,7 +26,8 @@ module Livechat
   # contains some basic parsing functions
   abstract class Command
 
-    @data : JSON::Any?
+    getter data : JSON::Any
+    data = JSON.parse "\"dummy data\""
 
     # Subclasses have to implement this
     abstract def properties
