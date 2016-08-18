@@ -16,8 +16,15 @@ module Livechat
     # Read only properties
     getter port : Int32
     getter sockets : Array(HTTP::WebSocket)
-    getter lastMessage : String?
-    getter lastSocket : HTTP::WebSocket?
+    getter lastItems : Hash(String, String | HTTP::WebSocket)
+
+    def lastMessage
+      @lastItems["message"] as String
+    end
+
+    def lastSocket
+      @lastItems["socket"] as HTTP::WebSocket
+    end
 
     # Define a new server instance
     # Listens on the specified *port*
@@ -26,25 +33,28 @@ module Livechat
       # Array of all current sockets
       @sockets = [] of HTTP::WebSocket
 
+      # Dummy lastItems
+      @lastItems = {} of String => String | HTTP::WebSocket
+
       # Listen for websocket connections on "/socket"
       ws "/socket" do |socket|
         @sockets << socket
 
         # Invoke the onopen event
-        @lastSocket = socket
+        @lastItems["socket"] = socket
         invoke_event LivechatEvents::SocketOpened
 
         # Bind to onmessage and onclose event handlers
         socket.on_message do |message|
-          @lastMessage = message
-          @lastSocket = socket
+          @lastItems["message"] = message
+          @lastItems["socket"] = socket
 
           # Invoke the onmessage event
           invoke_event LivechatEvents::SocketMessage
         end
         socket.on_close do |message|
-          @lastMessage = message
-          @lastSocket = socket
+          @lastItems["message"] = message
+          @lastItems["socket"] = socket
 
           # Invoke the onclose event
           invoke_event LivechatEvents::SocketClosed
@@ -54,6 +64,7 @@ module Livechat
         end
       end
 
+      # Default route
       error 404 do |context|
         context.response.status_code = 501
         context.response.headers["content_type"] = "application/json"
@@ -97,8 +108,7 @@ module Livechat
     def stop
 
       # Reset some stuff
-      @lastMessage = Nil
-      @lastSocket = Nil
+      @lastItems = {} of String => String | HTTP::WebSocket
       @sockets.clear
 
       # Unregister all events
