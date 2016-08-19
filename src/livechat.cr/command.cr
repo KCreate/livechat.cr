@@ -32,7 +32,9 @@ module Livechat
     data = JSON.parse "\"dummy data\""
 
     # Subclasses have to implement this
-    abstract def properties
+    def properties
+      {} of String => Nil.class
+    end
 
     # Create a new command from a raw json string
     def initialize(raw : String)
@@ -101,12 +103,6 @@ module Livechat
     def message
       "There are missing properties"
     end
-  end
-end
-
-module Livechat
-  abstract class Command
-    abstract def properties
   end
 end
 
