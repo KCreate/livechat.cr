@@ -6,6 +6,8 @@ module Livechat
     property uid : String
     property name : String?
     property permissions : Permissions
+    property socket : HTTP::WebSocket
+    property joinedAt : Int64
 
     # Set default permissions
     @permissions = {
@@ -16,12 +18,15 @@ module Livechat
     }
 
     # Takes a *uid* and an optional Hash to overwrite default permissions
-    def initialize(@uid, permissions : Permissions = {} of String => Bool)
+    def initialize(@uid, @socket, permissions : Permissions = {} of String => Bool)
 
       # Overwrite each key with the value set in *permissions*
       permissions.each do |key, value|
         @permissions[key] = value
       end
+
+      # Set joinedAt
+      @joinedAt = Time.now.epoch
     end
 
     # Returns the name of the user

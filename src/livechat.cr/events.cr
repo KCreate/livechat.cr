@@ -8,17 +8,17 @@ module Livechat
     SocketClosed
     SocketMessage
 
-    # Contributions
-    ContributionAdded
-
     # Users
     UserJoined
     UserLeft
     UserInfoChanged
 
     # Rooms
+    ContributionAdded
     RoomInfoChanged
     RoomCleared
+    UserJoinedRoom
+    UserLeftRoom
 
     # Misc & Debug
     Broadcast

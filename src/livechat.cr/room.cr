@@ -1,8 +1,10 @@
 require "./user.cr"
+require "./events.cr"
 require "events"
 
 module Livechat
   class Room
+    include Events
 
     # Regular properties
     property users : Array(User)
@@ -21,22 +23,40 @@ module Livechat
       @contributions = [] of Contribution
 
       # Register some events
-      register_event "userjoined"
-      register_event "userleft"
-      register_event "contributionadded"
-      register_event "contributionscleared"
-      register_event "namechanged"
+      register_event LivechatEvents::UserJoinedRoom
+      register_event LivechatEvents::UserLeftRoom
+      register_event LivechatEvents::ContributionAdded
+      register_event LivechatEvents::RoomCleared
+      register_event LivechatEvents::RoomInfoChanged
+    end
+
+    # Add a *user* to the current room
+    def add_user(user : User)
+      @users << user
+      @lastUser = user
+      invoke_event LivechatEvents::UserJoinedRoom
+    end
+
+    # Remove a *user* from the current room
+    def remove_user(user : User)
+      @users.delete user
+      @lastUser = user
+      invoke_event LivechatEvents::UserLeftRoom
     end
 
     # Adds a *contribution* to the room
     def add_contribution(contribution : Contribution)
       @contributions << contribution
+
+      invoke_event LivechatEvents::ContributionAdded
     end
 
     # Removes all contributions from the current room
     def clear(user)
       if user.uid == @owner.uid
         @contributions.clear
+
+        invoke_event LivechatEvents::RoomCleared
       end
     end
   end

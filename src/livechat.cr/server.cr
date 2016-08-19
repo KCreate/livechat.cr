@@ -3,7 +3,6 @@ require "kemal"
 require "events"
 
 # Internal dependencies
-require "./socket_user.cr"
 require "./user.cr"
 require "./socket_response.cr"
 
