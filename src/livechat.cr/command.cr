@@ -17,6 +17,8 @@ module Livechat
     case type
     when "change_name"
       ChangeNameCommand.new raw
+    when "close"
+      CloseCommand.new raw
     else
       raise UnknownCommandException.new
     end
@@ -102,11 +104,10 @@ module Livechat
   end
 end
 
-require "./commands/*"
-
 module Livechat
   abstract class Command
-
-
+    abstract def properties
   end
 end
+
+require "./commands/*"
