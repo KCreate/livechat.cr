@@ -16,24 +16,27 @@ module Livechat
 
     # Used to store users that are in no room yet
     property userBuffer : Array(User)
-    property rooms : Array(Room)
-    property server : Server
+    property rooms : Hash(String, Room)
     property user_room_lookup : Hash(User, Room | Nil.class)
     property socket_user_lookup : Hash(HTTP::WebSocket, User)
 
     # Used by event subscribers
     property lastUser : User?
+    property lastRoom : Room?
 
     # Creates a new controller
-    def initialize(@server)
+    def initialize()
       @userBuffer = [] of User
-      @rooms = [] of Room
+      @rooms = {} of String => Room
       @user_room_lookup = {} of User => Room | Nil.class
       @socket_user_lookup = {} of HTTP::WebSocket => User
 
+      # Register all events used by this class
       register_event LivechatEvents::UserJoined
       register_event LivechatEvents::UserLeft
       register_event LivechatEvents::UserInfoChanged
+      register_event LivechatEvents::RoomCreated
+      register_event LivechatEvents::RoomDeleted
     end
 
     # Handles *command* for a given *user*
@@ -43,8 +46,36 @@ module Livechat
       when "change_name"
         puts "#{user.name} changed his name to: #{comm.data["name"]}"
         user.name = comm.data["name"].to_s
+
+        # Invoke the UserInfoChanged event
+        @lastUser = user
+        invoke_event LivechatEvents::UserInfoChanged
       when "change_room"
-        puts "#{user.name} changed to room: #{comm.data["name"]}"
+
+        # Check if the user is inside the buffer zone
+        if user_is_in_buffer user
+          @userBuffer.delete user
+        else
+
+          # Remove the player from his current room
+          room = @user_room_lookup[user] as Room
+          room.remove_user user
+        end
+
+        # Check if the room has to be created
+        roomname = comm["name"].to_s
+        if !@rooms[roomname]?.is_a? Room
+          room = Room.new roomname, user
+          @rooms[roomname] = room
+
+          # Invoke the RoomCreated event
+          @lastRoom = room
+          invoke_event LivechatEvents::RoomCreated
+        end
+
+        # Add the user to the new room
+        @rooms[roomname].add_user user
+        @user_room_lookup[user] = @rooms[roomname]
       end
     end
 

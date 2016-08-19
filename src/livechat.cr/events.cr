@@ -17,6 +17,8 @@ module Livechat
     ContributionAdded
     RoomInfoChanged
     RoomCleared
+    RoomCreated
+    RoomDeleted
     UserJoinedRoom
     UserLeftRoom
 

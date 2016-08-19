@@ -1,7 +1,4 @@
-require "./livechat.cr/server.cr"
-require "./livechat.cr/controller.cr"
-require "./livechat.cr/events.cr"
-require "./livechat.cr/command.cr"
+require "./livechat.cr/*"
 require "json"
 include Livechat
 
@@ -9,7 +6,7 @@ include Livechat
 server = Server.new 3000
 
 # Create a controller
-controller = Controller.new server
+controller = Controller.new
 
 # Once a connection opens, create a socket -> user pair
 server.on LivechatEvents::SocketOpened do
@@ -36,9 +33,28 @@ end
 # Debug page
 server.get "/status" do |context|
   response = ""
-  controller.userBuffer.each do |user|
-    response += "#{user.name} joined at: #{user.joinedAt}"
+
+  # Append user information
+  response += "<h1>Users</h1>"
+  controller.user_room_lookup.each do |user, room|
+    response += "<h3>#{user.name}</h3>"
+    response += "<span>Joined at: #{user.joinedAt}</span><br>"
+
+    # Check if the user is inside a room
+    if room.is_a? Room
+      response += "<span>In room: #{room.name}</span><br>"
+    end
   end
+
+  # Append room information
+  response += "<h1>Rooms</h1>"
+  controller.rooms.each do |roomname, room|
+    response += "<h3>#{room.name}</h3>"
+    response += "<span>Owner: #{room.owner.name}</span><br>"
+    response += "<span>Amount of Contributions: #{room.contributions.size}</span><br>"
+    response += "<span>Amount of Users: #{room.users.size}</span><br>"
+  end
+
   response
 end
 

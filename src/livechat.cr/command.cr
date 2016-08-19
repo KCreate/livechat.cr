@@ -17,6 +17,8 @@ module Livechat
     case type
     when "change_name"
       ChangeNameCommand.new raw
+    when "change_room"
+      ChangeRoomCommand.new raw
     when "close"
       CloseCommand.new raw
     else
@@ -56,6 +58,11 @@ module Livechat
       end
 
       @data = json
+    end
+
+    # Convenience method to get data from @data
+    def [](fieldname)
+      @data[fieldname]
     end
 
     # Checks if a given command has all required parameters
