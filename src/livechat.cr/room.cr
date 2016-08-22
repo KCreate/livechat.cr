@@ -60,11 +60,34 @@ module Livechat
       end
     end
 
+    # Broadcasts the info of *user* to all users
+    def broadcast_userinfo(user : User)
+      broadcast String.build {|str|
+        str << "USERINFO\n"
+        str << "#{user.uid}\n"
+        str << "#{user.name}\n"
+        str << "USERINFOEND"
+      }
+    end
+
+    # Broadcasts the info of all users to all users
+    def broadcast_userinfo
+      @users.each do |user|
+        broadcast_userinfo user
+      end
+    end
+
     # Broadcasts *message* to all users inside the rooms
     def broadcast(message : String)
       @users.each do |user|
         user.send message
       end
+    end
+
+    # Allows calling broadcast via do
+    # DSL
+    def broadcast
+      broadcast yield
     end
   end
 end

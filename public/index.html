@@ -1,7 +1,13 @@
 <ul id="response"></ul>
 <script>
 let socket = new WebSocket('ws://localhost:3000/socket');
-socket.on_message = (event) => {
+socket.onopen = () => {
+    socket.send(JSON.stringify({
+        type: "change_room",
+        name: "test"
+    }));
+}
+socket.onmessage = (event) => {
     console.log(event);
 }
 </script>

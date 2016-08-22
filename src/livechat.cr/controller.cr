@@ -39,12 +39,17 @@ module Livechat
       register_event LivechatEvents::RoomDeleted
 
       # Broadcast status
-      on LivechatEvents::UserJoined do
+      on LivechatEvents::UserInfoChanged do
         user = @lastUser.not_nil!
-        room = @user_room_lookup.not_nil![user]
 
-        if room.is_a? Room
-          room.broadcast "#{user.name} joined"
+
+        # If the user is inside a room
+        if !user_staged user
+          room = @user_room_lookup.not_nil![user]
+
+          if room.is_a? Room
+            room.broadcast_userinfo user
+          end
         end
       end
     end
