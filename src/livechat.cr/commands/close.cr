@@ -1,4 +1,4 @@
-require "../command.cr"
+require "../*"
 
 module Livechat
 

@@ -1,6 +1,5 @@
-require "./user.cr"
-require "./events.cr"
 require "events"
+require "./*"
 
 module Livechat
   class Room
@@ -32,6 +31,19 @@ module Livechat
       # Broadcasts for UserJoinedRoom and UserLeftRoom
       on [LivechatEvents::UserJoinedRoom, LivechatEvents::UserLeftRoom] do
         broadcast_userlist
+      end
+
+      # Broadcasts for the UserInfoChanged event on the user
+      on LivechatEvents::UserJoinedRoom do
+        user = @lastUser.not_nil!
+        user.on LivechatEvents::UserInfoChanged do
+          broadcast_userinfo user
+        end
+      end
+
+      on LivechatEvents::UserLeftRoom do
+        user = @lastUser.not_nil!
+        user.clear_handlers LivechatEvents::UserInfoChanged
       end
     end
 

@@ -3,8 +3,7 @@ require "kemal"
 require "events"
 
 # Internal dependencies
-require "./user.cr"
-require "./socket_response.cr"
+require "./*"
 
 module Livechat
 

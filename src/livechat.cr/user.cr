@@ -1,10 +1,14 @@
+require "events"
+require "./*"
+
 module Livechat
   class User
+    include Events
 
     alias Permissions = Hash(String, Bool)
 
     property uid : String
-    property name : String?
+    @name : String?
     property permissions : Permissions
     property socket : HTTP::WebSocket
     property joinedAt : Int64
@@ -27,6 +31,9 @@ module Livechat
 
       # Set joinedAt
       @joinedAt = Time.now.epoch
+
+      # Register events
+      register_event LivechatEvents::UserInfoChanged
     end
 
     # Returns the name of the user
@@ -37,6 +44,12 @@ module Livechat
       else
         @uid
       end
+    end
+
+    # :nodoc:
+    def name=(name : String)
+      @name = name
+      invoke_event LivechatEvents::UserInfoChanged
     end
 
     # Send *message* to the user

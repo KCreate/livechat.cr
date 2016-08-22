@@ -1,7 +1,5 @@
 require "json"
-require "./contribution.cr"
-require "./room.cr"
-require "./user.cr"
+require "./*"
 
 module Livechat
 

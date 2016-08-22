@@ -3,10 +3,7 @@ require "json"
 require "events"
 
 # Internal dependencies
-require "./user.cr"
-require "./room.cr"
-require "./contribution.cr"
-require "./command.cr"
+require "./*"
 
 module Livechat
 
@@ -34,24 +31,8 @@ module Livechat
       # Register all events used by this class
       register_event LivechatEvents::UserJoined
       register_event LivechatEvents::UserLeft
-      register_event LivechatEvents::UserInfoChanged
       register_event LivechatEvents::RoomCreated
       register_event LivechatEvents::RoomDeleted
-
-      # Broadcast status
-      on LivechatEvents::UserInfoChanged do
-        user = @lastUser.not_nil!
-
-
-        # If the user is inside a room
-        if !user_staged user
-          room = @user_room_lookup.not_nil![user]
-
-          if room.is_a? Room
-            room.broadcast_userinfo user
-          end
-        end
-      end
     end
 
     # Handles *command* for a given *user*
@@ -61,10 +42,6 @@ module Livechat
       when "change_name"
         puts "#{user.name} changed his name to: #{comm.data["name"]}"
         user.name = comm.data["name"].to_s
-
-        # Invoke the UserInfoChanged event
-        @lastUser = user
-        invoke_event LivechatEvents::UserInfoChanged
       when "change_room"
 
         # Create the room if it doesn't exist already
