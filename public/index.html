@@ -1,1 +1,7 @@
-
+<ul id="response"></ul>
+<script>
+let socket = new WebSocket('ws://localhost:3000/socket');
+socket.on_message = (event) => {
+    console.log(event);
+}
+</script>
