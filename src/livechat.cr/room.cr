@@ -28,6 +28,11 @@ module Livechat
       register_event LivechatEvents::ContributionAdded
       register_event LivechatEvents::RoomCleared
       register_event LivechatEvents::RoomInfoChanged
+
+      # Broadcasts for UserJoinedRoom and UserLeftRoom
+      on [LivechatEvents::UserJoinedRoom, LivechatEvents::UserLeftRoom] do
+        broadcast_userlist
+      end
     end
 
     # Add a *user* to the current room
@@ -62,7 +67,7 @@ module Livechat
 
     # Broadcasts the info of *user* to all users
     def broadcast_userinfo(user : User)
-      broadcast String.build {|str|
+      broadcast String.build { |str|
         str << "USERINFO\n"
         str << "#{user.uid}\n"
         str << "#{user.name}\n"
@@ -75,6 +80,18 @@ module Livechat
       @users.each do |user|
         broadcast_userinfo user
       end
+    end
+
+    # Broadcasts the list of all users to all users
+    def broadcast_userlist
+      broadcast String.build { |str|
+        str << "USERLIST\n"
+        @users.each do |user|
+          str << "#{user.uid}\n"
+          str << "#{user.name}\n"
+        end
+        str << "USERLISTEND"
+      }
     end
 
     # Broadcasts *message* to all users inside the rooms
