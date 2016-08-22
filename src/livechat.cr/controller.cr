@@ -52,30 +52,9 @@ module Livechat
         invoke_event LivechatEvents::UserInfoChanged
       when "change_room"
 
-        # Check if the user is inside the buffer zone
-        if user_is_in_buffer user
-          @userBuffer.delete user
-        else
-
-          # Remove the player from his current room
-          room = @user_room_lookup[user] as Room
-          room.remove_user user
-        end
-
-        # Check if the room has to be created
-        roomname = comm["name"].to_s
-        if !@rooms[roomname]?.is_a? Room
-          room = Room.new roomname, user
-          @rooms[roomname] = room
-
-          # Invoke the RoomCreated event
-          @lastRoom = room
-          invoke_event LivechatEvents::RoomCreated
-        end
-
-        # Add the user to the new room
-        @rooms[roomname].add_user user
-        @user_room_lookup[user] = @rooms[roomname]
+        # Create the room if it doesn't exist already
+        room = add_room comm["name"].to_s, user
+        change_user_room user, room
       end
     end
 
@@ -86,6 +65,46 @@ module Livechat
       if user.is_a? User
         command comm, user
       end
+    end
+
+    # Adds a new room with *name* and *owner*
+    # Returns the room
+    def add_room(name : String, owner : User)
+      if !@rooms[name]?.is_a? Room
+        room = Room.new name, owner
+        @rooms[name] = room
+
+        # Invoke the RoomCreated Event
+        @lastRoom = room
+        invoke_event LivechatEvents::RoomCreated
+      else
+        room = @rooms[name]
+      end
+
+      room
+    end
+
+    # Puts *user* inside *room*
+    def change_user_room(user : User, room : Room)
+
+      # Check if the suer is inside the user buffer
+      if user_is_in_buffer user
+        @userBuffer.delete user
+      else
+        # Remove the player from his current room
+        currentRoom = @user_room_lookup[user] as Room
+        currentRoom.remove_user user
+      end
+
+      # Add the user to the new room
+      room.add_user user
+      @user_room_lookup[user] = room
+    end
+
+    # Puts *user* inside a room called *name*
+    def change_user_room(user : User, name : String)
+      room = add_room name, user
+      change_user_room user, room
     end
 
     # Adds *socket* to the controller
