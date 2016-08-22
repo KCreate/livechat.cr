@@ -59,5 +59,12 @@ module Livechat
         invoke_event LivechatEvents::RoomCleared
       end
     end
+
+    # Broadcasts *message* to all users inside the rooms
+    def broadcast(message : String)
+      @users.each do |user|
+        user.send message
+      end
+    end
   end
 end

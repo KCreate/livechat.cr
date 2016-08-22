@@ -15,7 +15,7 @@ module Livechat
     include Events
 
     # Used to store users that are in no room yet
-    property userBuffer : Array(User)
+    property user_staging : Array(User)
     property rooms : Hash(String, Room)
     property user_room_lookup : Hash(User, Room | Nil.class)
     property socket_user_lookup : Hash(HTTP::WebSocket, User)
@@ -26,7 +26,7 @@ module Livechat
 
     # Creates a new controller
     def initialize()
-      @userBuffer = [] of User
+      @user_staging = [] of User
       @rooms = {} of String => Room
       @user_room_lookup = {} of User => Room | Nil.class
       @socket_user_lookup = {} of HTTP::WebSocket => User
@@ -37,6 +37,16 @@ module Livechat
       register_event LivechatEvents::UserInfoChanged
       register_event LivechatEvents::RoomCreated
       register_event LivechatEvents::RoomDeleted
+
+      # Broadcast status
+      on LivechatEvents::UserJoined do
+        user = @lastUser.not_nil!
+        room = @user_room_lookup[user]
+
+        if room.is_a? Room
+          room.broadcast "#{user.name} joined"
+        end
+      end
     end
 
     # Handles *command* for a given *user*
@@ -87,9 +97,9 @@ module Livechat
     # Puts *user* inside *room*
     def change_user_room(user : User, room : Room)
 
-      # Check if the suer is inside the user buffer
-      if user_is_in_buffer user
-        @userBuffer.delete user
+      # Check if the user is inside the staging area
+      if user_staged user
+        @user_staging.delete user
       else
         # Remove the player from his current room
         currentRoom = @user_room_lookup[user] as Room
@@ -110,7 +120,7 @@ module Livechat
     # Adds *socket* to the controller
     def add_socket(socket : HTTP::WebSocket)
       user = User.new SecureRandom.uuid, socket
-      @userBuffer << user
+      @user_staging << user
       @user_room_lookup[user] = Nil
       @socket_user_lookup[socket] = user
 
@@ -127,9 +137,9 @@ module Livechat
       if user.is_a? User
         user = user.not_nil!
 
-        # Check if the user is inside the user buffer
-        if user_is_in_buffer user
-          @userBuffer.delete user
+        # Check if the user is staged
+        if user_staged user
+          @user_staging.delete user
         else
 
           # Remove the user from it's room
@@ -151,19 +161,10 @@ module Livechat
       @socket_user_lookup[socket]
     end
 
-    # Broadcasts *message* to all users inside *room*
-    def broadcast(message : String, room : Room)
-
-      # Iterate over all users inside room
-      room.users.each do |user|
-        user.send message
-      end
-    end
-
     # Returns true if *user* is inside the userBuffer
-    private def user_is_in_buffer(user : User)
+    private def user_staged(user : User)
       found = false
-      @userBuffer.each do |elem|
+      @user_staging.each do |elem|
         if elem == user
           found = true
         end
