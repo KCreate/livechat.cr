@@ -41,6 +41,7 @@ module Livechat
 
     # Send *message* to the user
     def send(message : String)
+      puts "sending *#{message}* to socket of user: #{@name}"
       @socket.send message
     end
   end

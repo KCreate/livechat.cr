@@ -41,7 +41,7 @@ module Livechat
       # Broadcast status
       on LivechatEvents::UserJoined do
         user = @lastUser.not_nil!
-        room = @user_room_lookup[user]
+        room = @user_room_lookup.not_nil![user]
 
         if room.is_a? Room
           room.broadcast "#{user.name} joined"
