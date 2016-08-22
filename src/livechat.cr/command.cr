@@ -21,6 +21,8 @@ module Livechat
       ChangeRoomCommand.new raw
     when "close"
       CloseCommand.new raw
+    when "add_contribution"
+      AddContributionCommand.new raw
     else
       raise UnknownCommandException.new
     end

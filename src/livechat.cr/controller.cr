@@ -47,6 +47,21 @@ module Livechat
         # Create the room if it doesn't exist already
         room = add_room comm["name"].to_s, user
         change_user_room user, room
+      when "add_contribution"
+
+        # Get the room the user is in
+        user = @lastUser.not_nil!
+        room = @user_room_lookup[user]
+
+        if room.is_a? Room
+
+          # Create the contribution
+          contribution = Contribution.new user, ContributionType::Message
+          contribution.message = comm.data["message"].to_s
+
+          # Add to the room
+          room.add_contribution contribution
+        end
       end
     end
 

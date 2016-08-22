@@ -41,9 +41,22 @@ module Livechat
         end
       end
 
+      # Remove the UserInfoChanged handlers from the user
       on LivechatEvents::UserLeftRoom do
         user = @lastUser.not_nil!
         user.clear_handlers LivechatEvents::UserInfoChanged
+      end
+
+      # When a new contribution is added
+      on LivechatEvents::ContributionAdded do
+        contribution = @lastContribution.not_nil!
+
+        broadcast String.build { |str|
+          str << "CONTRIBUTIONADDED\n"
+          str << "#{contribution.user.uid}\n"
+          str << "#{contribution.message}\n"
+          str << "CONTRIBUTIONADDEDEND"
+        }
       end
     end
 
@@ -65,6 +78,7 @@ module Livechat
     def add_contribution(contribution : Contribution)
       @contributions << contribution
 
+      @lastContribution = contribution
       invoke_event LivechatEvents::ContributionAdded
     end
 

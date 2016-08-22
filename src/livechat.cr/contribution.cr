@@ -6,8 +6,8 @@ module Livechat
   end
 
   class Contribution
-    @user : User
-    @type : ContributionType
+    property user : User
+    property type : ContributionType
     property message : String?
 
     def initialize(@user, @type)
