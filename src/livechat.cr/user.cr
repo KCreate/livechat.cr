@@ -38,5 +38,10 @@ module Livechat
         @uid
       end
     end
+
+    # Send *message* to the user
+    def send(message : String)
+      @socket.send message
+    end
   end
 end

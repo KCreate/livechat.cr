@@ -151,6 +151,15 @@ module Livechat
       @socket_user_lookup[socket]
     end
 
+    # Broadcasts *message* to all users inside *room*
+    def broadcast(message : String, room : Room)
+
+      # Iterate over all users inside room
+      room.users.each do |user|
+        user.send message
+      end
+    end
+
     # Returns true if *user* is inside the userBuffer
     private def user_is_in_buffer(user : User)
       found = false
