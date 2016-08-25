@@ -1,6 +1,6 @@
 # livechat.cr
 
-Simple little Livechat written in [crystal](crystal-lang.org). It uses [kemal](http://kemalcr.com/), [events](http://github.com/kcreate/events) and WebSockets.
+Simple little Livechat written in [crystal](http://crystal-lang.org). It uses [kemal](http://kemalcr.com/), [events](http://github.com/kcreate/events) and WebSockets.
 
 ## Installation
 
@@ -30,7 +30,7 @@ A list of all available commands is inside the `src/commands` directory.
 
 ## Contributing
 
-1. Fork it (https://github.com/KCreate/livechat.cr/fork)
+1. Fork it (https://github.com/kcreate/livechat.cr/fork)
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)
@@ -38,4 +38,4 @@ A list of all available commands is inside the `src/commands` directory.
 
 ## Contributors
 
-- [KCreate](https://github.com/KCreate) Leonard Schuetz - creator, maintainer
+- [KCreate](https://github.com/kcreate) Leonard Schuetz - creator, maintainer
